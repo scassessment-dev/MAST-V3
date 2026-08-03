@@ -19,7 +19,7 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
   const [centers, setCenters] = useState<CenterGroup[]>([]);
   const [participantName, setParticipantName] = useState("");
   const [age, setAge] = useState("");
-  const [gender, setGender] = useState<"" | "Male" | "Female">("" );
+  const [gender, setGender] = useState<"" | "Male" | "Female">("");
   const [centerId, setCenterId] = useState("");
   const [answers, setAnswers] = useState<AnswerState>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -152,7 +152,7 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
           </div>
           {/* Gender */}
           <div className="mt-4">
-            <span className="text-base font-bold text-blue-50">Gender / લિંગ</span>
+            <span className="text-base font-bold text-blue-50">Gender</span>
             <div className="mt-2 flex gap-6">
               {(["Male", "Female"] as const).map((option) => (
                 <label key={option} className="flex cursor-pointer items-center gap-2">
@@ -270,22 +270,20 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
                     <button
                       type="button"
                       onClick={() => choose(block.blockNumber, "most", option)}
-                      className={`rounded-xl px-4 py-3 text-base font-black transition ${
-                        answers[block.blockNumber]?.most === option
+                      className={`rounded-xl px-4 py-3 text-base font-black transition ${answers[block.blockNumber]?.most === option
                           ? "bg-emerald-600 text-white"
                           : "bg-slate-50 text-slate-700 ring-1 ring-slate-200"
-                      }`}
+                        }`}
                     >
                       વધુ
                     </button>
                     <button
                       type="button"
                       onClick={() => choose(block.blockNumber, "least", option)}
-                      className={`rounded-xl px-4 py-3 text-base font-black transition ${
-                        answers[block.blockNumber]?.least === option
+                      className={`rounded-xl px-4 py-3 text-base font-black transition ${answers[block.blockNumber]?.least === option
                           ? "bg-rose-600 text-white"
                           : "bg-slate-50 text-slate-700 ring-1 ring-slate-200"
-                      }`}
+                        }`}
                     >
                       ઓછું
                     </button>
