@@ -7,6 +7,7 @@ export type AdminSession = {
   name: string;
   email: string;
   role: AdminRole;
+  genderScope: "Male" | "Female" | "All";
   zoneId: string | null;
   centerId: string | null;
 };
@@ -33,7 +34,7 @@ export async function verifyAdminSession(token?: string): Promise<AdminSession |
   if (!token) return null;
   try {
     const { payload } = await jwtVerify(token, getSecret());
-    return payload as AdminSession;
+    return payload as unknown as AdminSession;
   } catch {
     return null;
   }

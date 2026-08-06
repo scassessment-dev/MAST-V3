@@ -10,7 +10,6 @@ if (existsSync(envLocalPath)) {
     // @ts-ignore - process.loadEnvFile available in Node 20.12+
     process.loadEnvFile(envLocalPath);
   } catch {
-    // Fallback: manual synchronous parse
     const lines = readFileSync(envLocalPath, "utf8").split("\n");
     for (const line of lines) {
       const trimmed = line.trim();
@@ -35,12 +34,16 @@ type GeneratedAdmin = {
   name: string;
   email: string;
   password: string;
+  genderScope?: "Male" | "Female" | "All";
   zoneId: string | null;
   centerId: string | null;
 };
 
 type CredentialFile = {
-  mainAdmin: GeneratedAdmin;
+  mainMasterAdmin?: GeneratedAdmin;
+  maleMasterAdmin?: GeneratedAdmin;
+  femaleMasterAdmin?: GeneratedAdmin;
+  mainAdmin?: GeneratedAdmin;
   zoneAdmins: GeneratedAdmin[];
   centerAdmins: GeneratedAdmin[];
 };
@@ -89,7 +92,13 @@ async function main() {
     );
   }
 
-  const admins = [credentials.mainAdmin, ...credentials.zoneAdmins, ...credentials.centerAdmins];
+  const masters: GeneratedAdmin[] = [];
+  if (credentials.mainMasterAdmin) masters.push(credentials.mainMasterAdmin);
+  if (credentials.maleMasterAdmin) masters.push(credentials.maleMasterAdmin);
+  if (credentials.femaleMasterAdmin) masters.push(credentials.femaleMasterAdmin);
+  if (masters.length === 0 && credentials.mainAdmin) masters.push(credentials.mainAdmin);
+
+  const admins = [...masters, ...credentials.zoneAdmins, ...credentials.centerAdmins];
   for (const admin of admins) {
     await db.collection("adminUsers").doc(admin.email.toLowerCase()).set(
       {
@@ -97,6 +106,7 @@ async function main() {
         email: admin.email.toLowerCase(),
         passwordHash: await bcrypt.hash(admin.password, 12),
         role: admin.role,
+        genderScope: admin.genderScope ?? "All",
         zoneId: admin.zoneId ?? null,
         centerId: admin.centerId ?? null,
         isActive: true

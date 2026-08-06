@@ -277,6 +277,7 @@ export default function ResponsesTable({
             <option value="">All Results</option>
             <option value="Valid">Valid</option>
             <option value="Invalid">Invalid</option>
+            <option value="Pending">Pending</option>
           </select>
 
           {/* From date */}
@@ -321,6 +322,28 @@ export default function ResponsesTable({
           >
             Clear
           </button>
+          <a
+            href={(() => {
+              const params = new URLSearchParams();
+              if (filters.search) params.set("search", filters.search);
+              if (filters.zoneId) params.set("zoneId", filters.zoneId);
+              if (filters.centerId) params.set("centerId", filters.centerId);
+              if (filters.primaryType) params.set("primaryType", filters.primaryType);
+              if (filters.gender) params.set("gender", filters.gender);
+              if (filters.valid) params.set("valid", filters.valid);
+              if (filters.from) params.set("from", new Date(filters.from).toISOString());
+              if (filters.to) {
+                const toDate = new Date(filters.to);
+                toDate.setHours(23, 59, 59, 999);
+                params.set("to", toDate.toISOString());
+              }
+              const query = params.toString();
+              return query ? `/api/admin/responses/export?${query}` : `/api/admin/responses/export`;
+            })()}
+            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-ink hover:bg-slate-50"
+          >
+            📥 Export CSV ({total})
+          </a>
           <span className="ml-auto text-sm text-slate-500">
             {isPending ? "…" : `${total} total`}
           </span>

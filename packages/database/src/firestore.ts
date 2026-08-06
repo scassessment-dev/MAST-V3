@@ -41,6 +41,7 @@ export type AdminUserRecord = {
   email: string;
   passwordHash: string;
   role: AdminRole;
+  genderScope: "Male" | "Female" | "All";
   zoneId: string | null;
   centerId: string | null;
   isActive: boolean;
@@ -193,6 +194,9 @@ async function writePreviewResponses(rows: Map<string, TestResponseRecord>): Pro
 }
 
 function applyScope(response: TestResponseRecord, session: AdminSession): boolean {
+  if (session.genderScope && session.genderScope !== "All" && response.gender) {
+    if (response.gender !== session.genderScope) return false;
+  }
   if (session.role === "MASTER_ADMIN") return true;
   if (session.role === "ZONE_ADMIN") return response.zoneId === session.zoneId;
   return response.centerId === session.centerId;
@@ -208,6 +212,7 @@ function applyFilters(response: TestResponseRecord, filters: ResponseFilters = {
   if (filters.valid) {
     if (filters.valid === "Valid" && response.valid !== "Valid") return false;
     if (filters.valid === "Invalid" && response.valid !== "Invalid") return false;
+    if (filters.valid === "Pending" && response.valid !== null) return false;
   }
   if (filters.from && response.submittedAt < filters.from) return false;
   if (filters.to && response.submittedAt > filters.to) return false;
@@ -350,6 +355,7 @@ export async function findAdminByEmail(email: string): Promise<AdminUserRecord |
     email: data.email,
     passwordHash: data.passwordHash,
     role: data.role,
+    genderScope: (data.genderScope as "Male" | "Female" | "All") ?? "All",
     zoneId: data.zoneId ?? null,
     centerId: data.centerId ?? null,
     isActive: Boolean(data.isActive)
@@ -443,10 +449,13 @@ export async function deleteResponsesByIds(session: AdminSession, ids: string[])
       if (!doc.exists) continue;
       const data = doc.data()!;
 
-      const inScope =
+      const genderMatch = !session.genderScope || session.genderScope === "All" || data.gender === session.genderScope;
+      const roleMatch =
         session.role === "MASTER_ADMIN" ||
         (session.role === "ZONE_ADMIN" && data.zoneId === session.zoneId) ||
         (session.role === "CENTER_ADMIN" && data.centerId === session.centerId);
+
+      const inScope = genderMatch && roleMatch;
 
       if (!inScope) continue;
       batch.delete(docRef);

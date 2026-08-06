@@ -23,6 +23,7 @@ export async function POST(request: Request) {
     name: admin.name,
     email: admin.email,
     role: admin.role,
+    genderScope: admin.genderScope,
     zoneId: admin.zoneId,
     centerId: admin.centerId
   });
