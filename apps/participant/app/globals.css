@@ -1,24 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800;900&family=Noto+Serif+Gujarati:wght@400;500;600;700;800&family=Rasa:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  h1, h2, h3, p, blockquote {
+    overflow-wrap: break-word;
+  }
+}
+
+html {
+  font-size: 19px;
+  scroll-behavior: smooth;
+}
 
 :root {
   color-scheme: light;
 }
 
+body, button, input, select, textarea {
+  font-family: 'Noto Sans Gujarati', 'Rasa', 'Noto Serif Gujarati', sans-serif !important;
+}
+
 body {
   margin: 0;
-  font-family: "Noto Sans Gujarati", "Nirmala UI", "Shruti", "Segoe UI", system-ui, sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(184, 137, 49, 0.18), transparent 28rem),
-    radial-gradient(circle at 80% 0%, rgba(63, 115, 181, 0.2), transparent 30rem),
-    linear-gradient(135deg, #eef5ff 0%, #f7fbff 42%, #fff6e6 100%);
+  font-size: 1.05rem;
+  line-height: 1.7;
+  font-weight: 500;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 52%, #f8fafc 100%);
+  color: #172033;
+}
+
+::selection {
+  background: #e2e8f0;
   color: #172033;
 }
 
 .glass-panel {
   background: rgba(255, 255, 255, 0.78);
-  border: 1px solid rgba(174, 196, 226, 0.7);
-  box-shadow: 0 24px 80px rgba(41, 76, 120, 0.12);
+  border: 1px solid rgba(203, 213, 225, 0.82);
+  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.1);
   backdrop-filter: blur(18px);
 }

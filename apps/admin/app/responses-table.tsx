@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useCallback, useTransition } from "react";
-import Link from "next/link";
+import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
+import { getServiceById, getServiceMatchStatus, MAST_STATUS_THEME, MAST_TYPE_THEME, NO_SERVICE_ID, serviceMatchLabel, type MastType } from "@mast/core";
 
 /* ---------- Types ---------- */
 
@@ -33,6 +35,7 @@ export type ResponseRow = {
   submittedAt: string; // ISO string (serialized from server)
   center: { name: string; zone: { name: string } };
   valid: string | null;
+  servicePriorities: string[];
 };
 
 type Filters = {
@@ -56,10 +59,10 @@ const TYPE_LABELS: Record<string, string> = {
   T: "T — તર્કબદ્ધ",
 };
 const TYPE_COLORS: Record<string, string> = {
-  M: "bg-emerald-50 text-emerald-700",
-  A: "bg-amber-50  text-amber-700",
-  S: "bg-sky-50    text-sky-700",
-  T: "bg-violet-50 text-violet-700",
+  M: MAST_TYPE_THEME.M.badge,
+  A: MAST_TYPE_THEME.A.badge,
+  S: MAST_TYPE_THEME.S.badge,
+  T: MAST_TYPE_THEME.T.badge,
 };
 
 const EMPTY_FILTERS: Filters = {
@@ -94,6 +97,11 @@ export default function ResponsesTable({
   const [showConfirm, setShowConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+  const [loadError, setLoadError] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 25;
+  const [showFilters, setShowFilters] = useState(false);
+  const router = useRouter();
 
   /* ---- Role capabilities ---- */
   const isMaster = session.role === "MASTER_ADMIN";
@@ -111,8 +119,9 @@ export default function ResponsesTable({
     : [];
 
   /* ---- Fetch rows from API ---- */
-  const fetchRows = useCallback((f: Filters) => {
+  const fetchRows = useCallback((f: Filters, requestedPage = 1) => {
     startTransition(async () => {
+      setLoadError("");
       const params = new URLSearchParams();
       if (f.search) params.set("search", f.search);
       if (f.zoneId) params.set("zoneId", f.zoneId);
@@ -126,24 +135,32 @@ export default function ResponsesTable({
         toDate.setHours(23, 59, 59, 999);
         params.set("to", toDate.toISOString());
       }
-      params.set("pageSize", "200");
-
-      const res = await fetch(`/api/admin/responses?${params}`);
-      if (!res.ok) return;
-      const data = await res.json();
-      setRows(data.rows);
-      setTotal(data.total);
-      setSelectedIds(new Set());
+      params.set("pageSize", String(pageSize));
+      params.set("page", String(requestedPage));
+      try {
+        const res = await fetch(`/api/admin/responses?${params}`);
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Request failed");
+        setRows(data.rows);
+        setTotal(data.total);
+        setPage(data.page);
+        setSelectedIds(new Set());
+      } catch {
+        setRows([]);
+        setTotal(0);
+        setSelectedIds(new Set());
+        setLoadError("રિસ્પોન્સ લોડ કરવામાં સમસ્યા આવી. કૃપા કરીને ફરી પ્રયાસ કરો.");
+      }
     });
-  }, []);
+  }, [pageSize]);
 
   function applyFilters() {
-    fetchRows(filters);
+    fetchRows(filters, 1);
   }
 
   function clearFilters() {
     setFilters(EMPTY_FILTERS);
-    fetchRows(EMPTY_FILTERS);
+    fetchRows(EMPTY_FILTERS, 1);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -178,9 +195,9 @@ export default function ResponsesTable({
       });
       if (!res.ok) throw new Error("Failed");
       setShowConfirm(false);
-      fetchRows(filters);
+      fetchRows(filters, page);
     } catch {
-      setDeleteError("Delete error. Please try again.");
+      setDeleteError("રિસ્પોન્સ delete કરવામાં સમસ્યા આવી. કૃપા કરીને ફરી પ્રયાસ કરો.");
     } finally {
       setDeleting(false);
     }
@@ -194,11 +211,12 @@ export default function ResponsesTable({
 
   /* ---- Render ---- */
   return (
-    <div className="panel rounded-2xl p-5">
+    <div className="panel rounded-3xl p-4 sm:p-6">
 
       {/* ── Filters ── */}
       <div className="mb-3">
-        <h2 className="mb-3 text-xl font-bold text-ink">Responses</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3"><h2 className="text-2xl font-black text-ink">Responses</h2><div className="flex items-center gap-3"><span className="rounded-full bg-slate-100 px-3 py-1.5 text-sm font-bold text-slate-500">{isPending ? "…" : `${total} total`}</span><button type="button" onClick={() => setShowFilters((open) => !open)} className={`rounded-xl px-4 py-2.5 text-sm font-black transition ${showFilters ? "bg-slate-900 text-white shadow-sm" : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"}`}>{showFilters ? "ફિલ્ટર બંધ કરો" : "ફિલ્ટર કરો"}</button></div></div>
+        {showFilters && <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/70 p-4 sm:p-5">
         <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6">
           {/* Name search */}
           <input
@@ -206,7 +224,7 @@ export default function ResponsesTable({
             value={filters.search}
             onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
             onKeyDown={handleKeyDown}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+            className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
           />
 
           {/* Zone (master only) */}
@@ -216,7 +234,7 @@ export default function ResponsesTable({
               onChange={(e) =>
                 setFilters((f) => ({ ...f, zoneId: e.target.value, centerId: "" }))
               }
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+              className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
             >
               <option value="">All Zones</option>
               {zones.map((z) => (
@@ -232,7 +250,7 @@ export default function ResponsesTable({
             <select
               value={filters.centerId}
               onChange={(e) => setFilters((f) => ({ ...f, centerId: e.target.value }))}
-              className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+              className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
             >
               <option value="">All Centers</option>
               {centersForDropdown.map((c) => (
@@ -247,7 +265,7 @@ export default function ResponsesTable({
           <select
             value={filters.primaryType}
             onChange={(e) => setFilters((f) => ({ ...f, primaryType: e.target.value }))}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+            className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
           >
             <option value="">All Types</option>
             {MAST_TYPES.map((t) => (
@@ -261,7 +279,7 @@ export default function ResponsesTable({
           <select
             value={filters.gender}
             onChange={(e) => setFilters((f) => ({ ...f, gender: e.target.value }))}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+            className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
           >
             <option value="">All Genders</option>
             <option value="Male">Male</option>
@@ -272,7 +290,7 @@ export default function ResponsesTable({
           <select
             value={filters.valid}
             onChange={(e) => setFilters((f) => ({ ...f, valid: e.target.value }))}
-            className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+            className="h-11 rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
           >
             <option value="">All Results</option>
             <option value="Valid">Valid</option>
@@ -289,7 +307,7 @@ export default function ResponsesTable({
               type="date"
               value={filters.from}
               onChange={(e) => setFilters((f) => ({ ...f, from: e.target.value }))}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
             />
           </div>
 
@@ -302,23 +320,23 @@ export default function ResponsesTable({
               type="date"
               value={filters.to}
               onChange={(e) => setFilters((f) => ({ ...f, to: e.target.value }))}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-200"
+              className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm outline-none focus:ring-2 focus:ring-indigo-200"
             />
           </div>
         </div>
 
         {/* Filter action buttons */}
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-slate-200 pt-4">
           <button
             onClick={applyFilters}
             disabled={isPending}
-            className="rounded-lg bg-ink px-4 py-2 text-sm font-bold text-white disabled:opacity-60"
+            className="rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-black text-white shadow-sm transition hover:bg-slate-800 disabled:opacity-60"
           >
             {isPending ? "Loading…" : "Apply Filters"}
           </button>
           <button
             onClick={clearFilters}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 hover:bg-slate-50"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-slate-600 transition hover:bg-slate-50"
           >
             Clear
           </button>
@@ -340,14 +358,12 @@ export default function ResponsesTable({
               const query = params.toString();
               return query ? `/api/admin/responses/export?${query}` : `/api/admin/responses/export`;
             })()}
-            className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-ink hover:bg-slate-50"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-black text-ink transition hover:bg-slate-50"
           >
             📥 Export CSV ({total})
           </a>
-          <span className="ml-auto text-sm text-slate-500">
-            {isPending ? "…" : `${total} total`}
-          </span>
         </div>
+        </div>}
       </div>
 
       {/* ── Delete action bar ── */}
@@ -371,12 +387,14 @@ export default function ResponsesTable({
         </div>
       )}
 
+      {loadError && <p className="mb-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 font-semibold text-rose-700">{loadError}</p>}
+
       {/* ── Table ── */}
-      <div className="overflow-x-auto rounded-xl border border-slate-100">
-        <table className="w-full min-w-[980px] border-collapse text-sm">
+      <div className="overflow-x-auto rounded-2xl border border-slate-200 bg-white/80 shadow-sm">
+        <table className="w-full min-w-[1080px] border-collapse text-sm">
           <thead>
-            <tr className="bg-slate-50 text-left text-xs font-semibold uppercase tracking-wide text-slate-500">
-              <th className="border-b border-slate-200 p-3">
+            <tr className="bg-slate-50 text-left text-xs font-bold uppercase tracking-wide text-slate-500">
+              <th className="border-b border-slate-200 p-4">
                 <input
                   type="checkbox"
                   checked={allSelected}
@@ -388,19 +406,16 @@ export default function ResponsesTable({
                   title="Select all"
                 />
               </th>
-              <th className="border-b border-slate-200 p-3">Name</th>
-              <th className="border-b border-slate-200 p-3">Age</th>
-              <th className="border-b border-slate-200 p-3">Gender</th>
-              <th className="border-b border-slate-200 p-3">Zone</th>
-              <th className="border-b border-slate-200 p-3">Center</th>
-              <th className="border-b border-slate-200 p-3 text-center">M</th>
-              <th className="border-b border-slate-200 p-3 text-center">A</th>
-              <th className="border-b border-slate-200 p-3 text-center">S</th>
-              <th className="border-b border-slate-200 p-3 text-center">T</th>
-              <th className="border-b border-slate-200 p-3">Primary</th>
-              <th className="border-b border-slate-200 p-3">Valid</th>
-              <th className="border-b border-slate-200 p-3">Submitted</th>
-              <th className="border-b border-slate-200 p-3">Action</th>
+              <th className="border-b border-slate-200 p-4">Name</th>
+              <th className="border-b border-slate-200 p-4">Age</th>
+              <th className="border-b border-slate-200 p-4">Zone</th>
+              <th className="border-b border-slate-200 p-4">Center</th>
+              <th className="border-b border-slate-200 p-4">Primary</th>
+              <th className="border-b border-slate-200 p-4">Secondary</th>
+              <th className="border-b border-slate-200 p-4">Validity</th>
+              <th className="w-36 whitespace-nowrap border-b border-slate-200 p-4">હાલની સેવા 1</th>
+              <th className="w-36 whitespace-nowrap border-b border-slate-200 p-4">સેવા મેચ</th>
+              <th className="border-b border-slate-200 p-4">Submitted</th>
             </tr>
           </thead>
           <tbody>
@@ -409,7 +424,7 @@ export default function ResponsesTable({
               return (
                 <tr
                   key={row.id}
-                  onClick={() => toggleOne(row.id)}
+                  onClick={() => router.push(`/responses/${row.id}`)}
                   className={`cursor-pointer border-b border-slate-100 transition-colors last:border-0 ${
                     checked ? "bg-red-50/70" : "hover:bg-slate-50"
                   }`}
@@ -424,13 +439,8 @@ export default function ResponsesTable({
                   </td>
                   <td className="p-3 font-semibold text-ink">{row.participantName}</td>
                   <td className="p-3 text-slate-600">{row.age}</td>
-                  <td className="p-3 text-slate-600">{row.gender}</td>
                   <td className="p-3 text-slate-600">{row.center.zone.name}</td>
                   <td className="p-3 text-slate-600">{row.center.name}</td>
-                  <td className="p-3 text-center font-mono text-slate-700">{row.scoreM}</td>
-                  <td className="p-3 text-center font-mono text-slate-700">{row.scoreA}</td>
-                  <td className="p-3 text-center font-mono text-slate-700">{row.scoreS}</td>
-                  <td className="p-3 text-center font-mono text-slate-700">{row.scoreT}</td>
                   <td className="p-3">
                     <span
                       className={`rounded-md px-2 py-1 text-xs font-bold ${TYPE_COLORS[row.primaryType] ?? "bg-slate-100 text-slate-600"}`}
@@ -438,29 +448,24 @@ export default function ResponsesTable({
                       {row.primaryType}
                     </span>
                   </td>
+                  <td className="p-3"><span className={`rounded-md px-2 py-1 text-xs font-bold ${TYPE_COLORS[row.secondaryType] ?? "bg-slate-100 text-slate-700"}`}>{row.secondaryType}</span></td>
                   <td className="p-3">
                     <span
                       className={`rounded-md px-2 py-1 text-xs font-bold ${
                         row.valid === "Valid"
-                          ? "bg-emerald-50 text-emerald-700"
+                          ? MAST_STATUS_THEME.valid.badge
                           : row.valid === "Invalid"
-                          ? "bg-rose-50 text-rose-700"
-                          : "bg-slate-100 text-slate-400"
+                          ? MAST_STATUS_THEME.invalid.badge
+                          : MAST_STATUS_THEME.pending.badge
                       }`}
                     >
                       {row.valid ?? "Pending"}
                     </span>
                   </td>
+                  <td className="w-36 p-3"><ServiceNameCell serviceId={row.servicePriorities[0]} /></td>
+                  <td className="w-36 p-3"><ServiceMatchCell serviceId={row.servicePriorities[0]} primaryType={row.primaryType as MastType} valid={row.valid as "Valid" | "Invalid" | null} /></td>
                   <td className="p-3 text-slate-500">
                     {new Date(row.submittedAt).toLocaleDateString("en-IN")}
-                  </td>
-                  <td className="p-3" onClick={(e) => e.stopPropagation()}>
-                    <Link
-                      href={`/responses/${row.id}`}
-                      className="font-bold text-blue-700 hover:underline"
-                    >
-                      Open
-                    </Link>
                   </td>
                 </tr>
               );
@@ -482,8 +487,16 @@ export default function ResponsesTable({
         )}
       </div>
 
+      {!loadError && total > 0 && (
+        <div className="mt-4 flex items-center justify-between rounded-xl bg-white/70 px-4 py-3 ring-1 ring-slate-200">
+          <button onClick={() => fetchRows(filters, page - 1)} disabled={isPending || page <= 1} className="rounded-lg border border-slate-200 px-4 py-2 font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">← Previous</button>
+          <p className="text-sm font-semibold text-slate-600">Page {page} of {Math.max(1, Math.ceil(total / pageSize))}</p>
+          <button onClick={() => fetchRows(filters, page + 1)} disabled={isPending || page >= Math.ceil(total / pageSize)} className="rounded-lg border border-slate-200 px-4 py-2 font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">Next →</button>
+        </div>
+      )}
+
       {/* ── Confirmation Modal ── */}
-      {showConfirm && (
+      {showConfirm && createPortal((
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
           <div className="panel w-full max-w-md rounded-2xl p-6 shadow-2xl">
             {/* Icon */}
@@ -546,7 +559,22 @@ export default function ResponsesTable({
             </div>
           </div>
         </div>
-      )}
+      ), document.body)}
     </div>
+  );
+}
+
+function ServiceNameCell({ serviceId }: { serviceId?: string }) {
+  if (!serviceId) return <span className="text-xs font-semibold text-slate-400">માહિતી ઉપલબ્ધ નથી</span>;
+  if (serviceId === NO_SERVICE_ID) return <span className="inline-flex whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-500">સેવા નથી</span>;
+  const service = getServiceById(serviceId);
+  return <span className="inline-flex max-w-full rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-black text-slate-700">{service?.shortCode ?? "માહિતી ઉપલબ્ધ નથી"}</span>;
+}
+
+function ServiceMatchCell({ serviceId, primaryType, valid }: { serviceId?: string; primaryType: MastType; valid: "Valid" | "Invalid" | null }) {
+  if (!serviceId) return <span className="text-xs font-semibold text-slate-400">—</span>;
+  const status = getServiceMatchStatus({ serviceId, primaryType, valid });
+  return (
+    <span className={`inline-block whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-black ${status === "matched" ? MAST_STATUS_THEME.matched.badge : status === "not_matched" ? MAST_STATUS_THEME.notMatched.badge : MAST_STATUS_THEME.pending.badge}`}>{serviceMatchLabel(status)}</span>
   );
 }

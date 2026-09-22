@@ -152,20 +152,48 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
           </div>
           {/* Gender */}
           <div className="mt-4">
-            <span className="text-base font-bold text-blue-50">Gender</span>
-            <div className="mt-2 flex gap-6">
-              {(["Male", "Female"] as const).map((option) => (
-                <label key={option} className="flex cursor-pointer items-center gap-2">
-                  <input
-                    type="radio"
-                    name="gender"
-                    value={option}
-                    checked={gender === option}
-                    onChange={() => setGender(option)}
-                    className="h-5 w-5 accent-amber-400"
-                  />
-                  <span className="text-base font-semibold text-white">{option}</span>
-                </label>
+            <span className="text-base font-bold text-blue-50">Gender / જાતિ</span>
+            <div className="mt-3 grid grid-cols-2 gap-4">
+              {[
+                { value: "Male" as const, label: "પુરુષ", sublabel: "Male", src: "/images/male.png" },
+                { value: "Female" as const, label: "સ્ત્રી", sublabel: "Female", src: "/images/female.png" },
+              ].map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setGender(option.value)}
+                  className={`flex flex-col items-center justify-center gap-2 rounded-2xl border-2 px-4 py-4 transition-all duration-200 ${
+                    gender === option.value
+                      ? "border-amber-400 bg-amber-400/20 shadow-lg shadow-amber-400/20"
+                      : "border-white/20 bg-white/10 hover:bg-white/20"
+                  }`}
+                >
+                  <div className="flex h-12 w-12 items-center justify-center">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={option.src}
+                      alt={option.sublabel}
+                      className={`h-11 w-11 object-contain transition-all duration-200 brightness-0 invert ${
+                        gender === option.value
+                          ? "scale-110 opacity-100 drop-shadow-[0_0_8px_rgba(251,191,36,0.9)]"
+                          : "opacity-70 hover:opacity-100"
+                      }`}
+                    />
+                  </div>
+                  <div className="text-center">
+                    <span className={`block text-xl font-black leading-tight transition-colors ${gender === option.value ? "text-amber-200" : "text-white"}`}>
+                      {option.label}
+                    </span>
+                    <span className={`block text-sm font-semibold transition-colors ${gender === option.value ? "text-amber-300" : "text-blue-200"}`}>
+                      {option.sublabel}
+                    </span>
+                  </div>
+                  {gender === option.value && (
+                    <span className="rounded-full bg-amber-400 px-3 py-0.5 text-xs font-black text-ink">
+                      ✓ Selected
+                    </span>
+                  )}
+                </button>
               ))}
             </div>
           </div>
@@ -179,10 +207,10 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
             </div>
             <div className="rounded-xl bg-blue-50 px-4 py-2 text-sm font-bold text-blue-900">1 વધુ + 1 ઓછું</div>
           </div>
-          <div className="mt-4 grid gap-3 text-[16px] font-medium leading-8 text-slate-700">
+          <div className="mt-4 grid gap-3 text-lg sm:text-xl font-medium leading-9 text-slate-800">
             {TEST_INSTRUCTIONS.map((instruction) => (
-              <div key={instruction} className="flex gap-3 rounded-xl bg-slate-50 p-3">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-sm font-black text-emerald-700">
+              <div key={instruction} className="flex gap-3 rounded-xl bg-slate-50 p-4">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-base font-black text-emerald-700">
                   ✓
                 </span>
                 <p
@@ -202,9 +230,9 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
               type="checkbox"
               checked={hasReadInstructions}
               onChange={(event) => setHasReadInstructions(event.target.checked)}
-              className="mt-1 h-5 w-5 accent-ink"
+              className="mt-1 h-6 w-6 accent-ink"
             />
-            <span className="text-base font-bold leading-7 text-ink">
+            <span className="text-lg sm:text-xl font-bold leading-8 text-ink">
               મેં ઉપરની સૂચનાઓ વાંચી છે અને હવે questions શરૂ કરવા તૈયાર છું.
             </span>
           </label>
@@ -216,7 +244,7 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
               setError("");
               setStep("questions");
             }}
-            className="mt-5 w-full rounded-xl bg-ink px-5 py-4 text-lg font-black text-white shadow-lg shadow-slate-300 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="mt-5 w-full rounded-xl bg-ink px-6 py-5 text-xl sm:text-2xl font-black text-white shadow-lg shadow-slate-300 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
             Questions શરૂ કરો
           </button>
@@ -232,21 +260,21 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.18em] text-gold">Step 2 / 2</p>
             <h2 className="mt-1 text-2xl font-black text-ink">Questions</h2>
-            <p className="mt-1 text-sm font-semibold text-slate-600">
+            <p className="mt-1 text-base font-semibold text-slate-600">
               {participantName} / દરેક બ્લોકમાં 1 વધુ અને 1 ઓછું પસંદ કરો.
             </p>
           </div>
           <button
             type="button"
             onClick={() => setStep("intro")}
-            className="rounded-xl bg-white px-4 py-3 text-sm font-bold text-ink ring-1 ring-slate-200"
+            className="rounded-xl bg-white px-4 py-3 text-base font-bold text-ink ring-1 ring-slate-200"
           >
             Details બદલો
           </button>
         </div>
       </div>
 
-      <div className="flex items-center justify-between rounded-xl bg-white/80 px-4 py-3 text-sm font-semibold text-slate-700 ring-1 ring-blue-100">
+      <div className="flex items-center justify-between rounded-xl bg-white/80 px-5 py-4 text-base font-semibold text-slate-700 ring-1 ring-blue-100">
         <span>પ્રગતિ</span>
         <span>
           {completedBlocks} / {blocks.length}
@@ -256,21 +284,21 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
       <div className="space-y-5">
         {blocks.map((block) => (
           <section key={block.blockNumber} className="glass-panel rounded-2xl p-4 sm:p-5">
-            <h2 className="text-center text-2xl font-black text-ink">બ્લોક {block.blockNumber}</h2>
+            <h2 className="text-center text-3xl font-black text-ink">બ્લોક {block.blockNumber}</h2>
             <div className="mt-4 space-y-3">
               {options.map((option) => (
                 <div
                   key={option}
-                  className="grid gap-4 rounded-xl border border-slate-100 bg-white/86 p-4 md:grid-cols-[1fr_auto] md:items-center"
+                  className="grid gap-4 rounded-xl border border-slate-100 bg-white/86 p-5 md:grid-cols-[1fr_auto] md:items-center"
                 >
-                  <p className="text-left text-lg font-semibold leading-8 text-slate-800">
+                  <p className="text-left text-xl sm:text-2xl font-bold leading-9 text-slate-900">
                     <span className="font-black text-ink">{option}.</span> {block.statements[option]}
                   </p>
-                  <div className="grid grid-cols-2 gap-3 md:min-w-[250px]">
+                  <div className="grid grid-cols-2 gap-3 md:min-w-[280px]">
                     <button
                       type="button"
                       onClick={() => choose(block.blockNumber, "most", option)}
-                      className={`rounded-xl px-4 py-3 text-base font-black transition ${answers[block.blockNumber]?.most === option
+                      className={`rounded-xl px-5 py-4 text-lg sm:text-xl font-black transition ${answers[block.blockNumber]?.most === option
                           ? "bg-emerald-600 text-white"
                           : "bg-slate-50 text-slate-700 ring-1 ring-slate-200"
                         }`}
@@ -280,7 +308,7 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
                     <button
                       type="button"
                       onClick={() => choose(block.blockNumber, "least", option)}
-                      className={`rounded-xl px-4 py-3 text-base font-black transition ${answers[block.blockNumber]?.least === option
+                      className={`rounded-xl px-5 py-4 text-lg sm:text-xl font-black transition ${answers[block.blockNumber]?.least === option
                           ? "bg-rose-600 text-white"
                           : "bg-slate-50 text-slate-700 ring-1 ring-slate-200"
                         }`}
@@ -300,7 +328,7 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
         type="button"
         disabled={!isValid || isSubmitting}
         onClick={submit}
-        className="w-full rounded-xl bg-ink px-5 py-4 text-lg font-black text-white shadow-lg shadow-slate-300 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
+        className="w-full rounded-xl bg-ink px-6 py-5 text-xl sm:text-2xl font-black text-white shadow-lg shadow-slate-300 transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300"
       >
         {isSubmitting ? "સબમિટ થઈ રહ્યું છે..." : "ટેસ્ટ સબમિટ કરો"}
       </button>

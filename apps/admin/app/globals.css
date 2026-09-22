@@ -1,16 +1,45 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Gujarati:wght@400;500;600;700;800;900&family=Noto+Serif+Gujarati:wght@400;500;600;700;800&family=Rasa:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  h1, h2, h3, p, blockquote {
+    overflow-wrap: break-word;
+  }
+}
+
+html {
+  font-size: 18px;
+  scroll-behavior: smooth;
+}
+
+:root {
+  --mast-ink: #172033;
+  --mast-surface: #ffffff;
+  --mast-line: #d9e4f2;
+  --mast-muted: #5b6678;
+}
+
+body, button, input, select, textarea {
+  font-family: 'Noto Sans Gujarati', 'Rasa', 'Noto Serif Gujarati', sans-serif !important;
+}
+
 body {
   margin: 0;
-  background: linear-gradient(135deg, #f7fbff 0%, #edf5ff 52%, #fffaf2 100%);
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 52%, #f8fafc 100%);
+  color: #172033;
+}
+
+::selection {
+  background: #e2e8f0;
   color: #172033;
 }
 
 .panel {
   background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(185, 204, 230, 0.72);
-  box-shadow: 0 18px 60px rgba(41, 76, 120, 0.1);
+  border: 1px solid rgba(203, 213, 225, 0.82);
+  box-shadow: 0 18px 60px rgba(15, 23, 42, 0.08);
   backdrop-filter: blur(16px);
 }

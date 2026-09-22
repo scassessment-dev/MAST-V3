@@ -5,7 +5,9 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-gujarati)", "Inter", "system-ui", "sans-serif"]
+        sans: ["var(--font-noto-sans)", "Noto Sans Gujarati", "sans-serif"],
+        serif: ["var(--font-noto-serif)", "Noto Serif Gujarati", "serif"],
+        rasa: ["var(--font-rasa)", "Rasa", "serif"]
       },
       colors: {
         ink: "#172033",

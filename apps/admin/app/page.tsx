@@ -1,7 +1,7 @@
-import { MAST_LABELS, type MastType } from "@mast/core";
+import { MAST_LABELS, MAST_TYPE_THEME, type MastType } from "@mast/core";
 import { getDashboardData, listZonesWithCenters } from "@mast/database";
 import { requireAdmin } from "./auth";
-import LogoutButton from "./logout-button";
+import AdminNavigation from "./admin-navigation";
 import ResponsesTable from "./responses-table";
 
 export default async function AdminDashboard() {
@@ -30,6 +30,7 @@ export default async function AdminDashboard() {
     submittedAt: r.submittedAt.toISOString(),
     center: r.center,
     valid: r.valid,
+    servicePriorities: r.servicePriorities,
   }));
 
   const sessionInfo = {
@@ -43,7 +44,7 @@ export default async function AdminDashboard() {
       <section className="mx-auto max-w-7xl space-y-5">
 
         {/* Header */}
-        <div className="panel rounded-2xl p-5">
+        <div className="panel rounded-3xl p-5 sm:p-7">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
@@ -54,15 +55,7 @@ export default async function AdminDashboard() {
                 {session.name} / {session.email}
               </p>
             </div>
-            <div className="flex gap-3">
-              <a
-                href="/api/admin/responses/export"
-                className="rounded-xl bg-white px-4 py-3 font-bold text-ink ring-1 ring-slate-200 hover:bg-slate-50"
-              >
-                Export CSV
-              </a>
-              <LogoutButton />
-            </div>
+            <AdminNavigation />
           </div>
         </div>
 
@@ -74,6 +67,7 @@ export default async function AdminDashboard() {
               key={type}
               label={`${type} — ${MAST_LABELS[type].label}`}
               value={counts[type] ?? 0}
+              tone={MAST_TYPE_THEME[type].card}
             />
           ))}
         </div>
@@ -91,9 +85,9 @@ export default async function AdminDashboard() {
   );
 }
 
-function Metric({ label, value }: { label: string; value: number }) {
+function Metric({ label, value, tone = "border-slate-200 bg-white" }: { label: string; value: number; tone?: string }) {
   return (
-    <div className="panel rounded-xl p-4">
+    <div className={`min-w-0 rounded-2xl border p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${tone}`}>
       <p className="text-sm text-slate-500">{label}</p>
       <p className="mt-1 text-3xl font-bold text-ink">{value}</p>
     </div>

@@ -1,0 +1,18 @@
+import Link from "next/link";
+import { getVivekPointsInSequence, MAST_VIVEK_GUIDE } from "@mast/core";
+import { requireAdmin } from "../../auth";
+import AdminNavigation from "../../admin-navigation";
+
+export default async function VivekGuidePage() {
+  await requireAdmin();
+  const points = getVivekPointsInSequence();
+  return <main className="min-h-screen px-4 py-5 sm:px-6 lg:px-8"><section className="mx-auto max-w-7xl">
+    <nav className="sticky top-3 z-20 flex flex-col gap-3 rounded-3xl bg-white/90 px-4 py-3 shadow-sm ring-1 ring-slate-200 backdrop-blur lg:flex-row lg:items-center lg:justify-between"><div className="flex items-center justify-between gap-3"><Link href="/guide" className="font-bold text-slate-600 hover:text-ink">← Guide</Link><span className="rounded-lg bg-slate-900 px-3 py-2 text-sm font-black text-white">વિવેક</span></div><AdminNavigation /></nav>
+    <header className="mt-6 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-slate-50 to-stone-100 px-7 py-10 text-ink shadow-sm sm:px-10 sm:py-14">
+      <div className="min-w-0"><p className="text-sm font-bold tracking-[.2em] text-gold">{MAST_VIVEK_GUIDE.eyebrow}</p><h1 className="mt-3 max-w-4xl break-words font-serif text-4xl font-extrabold leading-[1.35] sm:text-6xl">{MAST_VIVEK_GUIDE.title}</h1><p className="mt-4 max-w-3xl break-words text-xl font-bold leading-9 text-slate-600">{MAST_VIVEK_GUIDE.subtitle}</p></div>
+    </header>
+    <section className="mt-7 rounded-3xl border border-slate-200 bg-white/85 p-6 shadow-sm sm:p-8"><p className="text-sm font-bold tracking-[.16em] text-gold">વાંચતાં પહેલાં</p><div className="mt-4 max-w-5xl space-y-5 text-lg leading-9 text-slate-700">{MAST_VIVEK_GUIDE.introduction.map((paragraph) => <p className="break-words" key={paragraph}>{paragraph}</p>)}</div></section>
+    <div className="mt-7 grid gap-7 lg:grid-cols-[230px_minmax(0,1fr)]"><aside className="hidden lg:block"><div className="sticky top-24 rounded-2xl bg-white/85 p-4 shadow-sm ring-1 ring-slate-200"><p className="px-2 text-xs font-bold tracking-[.16em] text-slate-400">૯ મુદ્દા</p>{points.map((point) => <a key={point.number} className="mt-1 block rounded-lg border-l-2 border-transparent px-2 py-2 text-sm font-semibold leading-6 text-slate-600 transition hover:border-gold hover:bg-slate-50 hover:text-ink" href={`#vivek-${point.number}`}><span className="mr-2 text-gold">{String(point.number).padStart(2, "0")}</span>{point.title}</a>)}</div></aside><article className="min-w-0 space-y-5">{points.map((point) => <section id={`vivek-${point.number}`} key={point.number} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><div className="flex min-w-0 items-start gap-4"><span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-slate-900 font-black text-white shadow-sm">{String(point.number).padStart(2, "0")}</span><div className="min-w-0"><h2 className="break-words font-serif text-2xl font-extrabold leading-[1.4] text-ink sm:text-3xl">{point.title}</h2><div className="mt-4 max-w-5xl space-y-4 text-lg leading-9 text-slate-700">{point.paragraphs.map((paragraph) => <p className="break-words" key={paragraph}>{paragraph}</p>)}</div></div></div></section>)}</article></div>
+    <section className="mt-7 rounded-3xl border border-slate-800 bg-slate-900 p-7 shadow-sm sm:p-9"><p className="text-sm font-bold tracking-[.16em] text-gold">છેલ્લે યાદ રાખવું</p><p className="mt-4 max-w-5xl font-serif text-2xl font-bold leading-[1.65] text-white">{MAST_VIVEK_GUIDE.closing}</p></section>
+  </section></main>;
+}

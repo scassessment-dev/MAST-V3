@@ -8,12 +8,14 @@
     "build": "tsc --noEmit",
     "lint": "eslint src --ext .ts"
   },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11"
+  },
   "dependencies": {
     "@mast/core": "workspace:*",
-    "@prisma/client": "^5.16.1",
     "@react-pdf/renderer": "^3.4.4",
     "bcryptjs": "^2.4.3",
-    "firebase-admin": "^14.1.0",
+    "better-sqlite3": "^9.4.3",
     "jose": "^5.6.3",
     "react": "^18.3.1"
   }

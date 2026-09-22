@@ -1,6 +1,7 @@
 "use client";
 
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { MAST_TYPE_THEME, type MastType } from "@mast/core";
+import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 export default function ResultChart({ scores }: { scores: Array<{ type: string; label: string; score: number }> }) {
   return (
@@ -11,7 +12,9 @@ export default function ResultChart({ scores }: { scores: Array<{ type: string; 
           <XAxis dataKey="type" />
           <YAxis domain={[0, 20]} allowDecimals={false} />
           <Tooltip formatter={(value, _name, item) => [`${value}`, item.payload.label]} />
-          <Bar dataKey="score" fill="#2d5f9f" radius={[8, 8, 0, 0]} />
+          <Bar dataKey="score" radius={[8, 8, 0, 0]}>
+            {scores.map((score) => <Cell key={score.type} fill={MAST_TYPE_THEME[score.type as MastType]?.accentHex ?? "#64748b"} />)}
+          </Bar>
         </BarChart>
       </ResponsiveContainer>
     </div>

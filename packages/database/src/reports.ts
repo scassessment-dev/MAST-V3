@@ -1,4 +1,4 @@
-import { MAST_LABELS, type MastType } from "@mast/core";
+import { MAST_LABELS, MAST_TYPE_THEME, type MastType } from "@mast/core";
 
 type ReportResponse = {
   participantName: string;
@@ -13,6 +13,7 @@ type ReportResponse = {
   secondaryType: string;
   sequence: string;
   valid: string | null;
+  servicePriorities?: string[];
   answers: unknown;
   center: { name: string; zone: { name: string } };
 };
@@ -46,6 +47,9 @@ export function responseToCsvRow(response: ReportResponse): string[] {
     response.secondaryType,
     response.sequence,
     response.valid ?? "",
+    response.servicePriorities?.[0] ?? "",
+    response.servicePriorities?.[1] ?? "",
+    response.servicePriorities?.[2] ?? "",
     ...answerCells
   ].map(String);
 }
@@ -66,6 +70,9 @@ export function csvHeaders(): string[] {
     "Secondary type",
     "Sequence",
     "Valid",
+    "Current service 1",
+    "Current service 2",
+    "Current service 3",
     ...Array.from({ length: 10 }, (_, index) => [`Block ${index + 1} most`, `Block ${index + 1} least`]).flat()
   ];
 }
@@ -83,7 +90,7 @@ export function htmlReport(response: ReportResponse): string {
   ] as Array<[MastType, number]>;
 
   const scoreRows = scores
-    .map(([type, score]) => `<tr><td>${type} - ${MAST_LABELS[type].label}</td><td>${score}</td></tr>`)
+    .map(([type, score]) => `<tr style="background:${MAST_TYPE_THEME[type].softHex}"><td>${type} - ${MAST_LABELS[type].label}</td><td>${score}</td></tr>`)
     .join("");
 
   return `<!doctype html>
@@ -108,7 +115,7 @@ export function htmlReport(response: ReportResponse): string {
     <p><strong>ઝોન:</strong> ${response.center.zone.name}</p>
     <p><strong>સેન્ટર:</strong> ${response.center.name}</p>
     <p><strong>તારીખ:</strong> ${response.submittedAt.toLocaleString("en-IN")}</p>
-    <p><span class="pill">Primary: ${response.primaryType}</span><span class="pill">Secondary: ${response.secondaryType}</span><span class="pill">Sequence: ${response.sequence}</span></p>
+    <p><span class="pill" style="background:${MAST_TYPE_THEME[response.primaryType as MastType].softHex};color:${MAST_TYPE_THEME[response.primaryType as MastType].accentHex}">Primary: ${response.primaryType}</span><span class="pill" style="background:${MAST_TYPE_THEME[response.secondaryType as MastType].softHex};color:${MAST_TYPE_THEME[response.secondaryType as MastType].accentHex}">Secondary: ${response.secondaryType}</span><span class="pill">Sequence: ${response.sequence}</span></p>
     <table><thead><tr><th>Type</th><th>Score</th></tr></thead><tbody>${scoreRows}</tbody></table>
   </div>
 </body>

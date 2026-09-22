@@ -2,7 +2,7 @@ import React from "react";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { Document, Font, Page, StyleSheet, Text, View, renderToStream } from "@react-pdf/renderer";
-import { MAST_LABELS, type MastType } from "@mast/core";
+import { MAST_LABELS, MAST_TYPE_THEME, type MastType } from "@mast/core";
 
 type PdfReportResponse = {
   id: string;
@@ -85,15 +85,15 @@ function ReportDocument({ response }: { response: PdfReportResponse }) {
 
         <View style={styles.section}>
           <Text style={styles.label}>પરિણામ સારાંશ</Text>
-          <Text style={styles.pill}>મુખ્ય પ્રકાર: {response.primaryType} - {MAST_LABELS[primary].label}</Text>
-          <Text style={styles.pill}>બીજો પ્રકાર: {response.secondaryType} - {MAST_LABELS[secondary].label}</Text>
+          <Text style={[styles.pill, { backgroundColor: MAST_TYPE_THEME[primary].softHex, color: MAST_TYPE_THEME[primary].accentHex }]}>મુખ્ય પ્રકાર: {response.primaryType} - {MAST_LABELS[primary].label}</Text>
+          <Text style={[styles.pill, { backgroundColor: MAST_TYPE_THEME[secondary].softHex, color: MAST_TYPE_THEME[secondary].accentHex }]}>બીજો પ્રકાર: {response.secondaryType} - {MAST_LABELS[secondary].label}</Text>
           <Text style={styles.pill}>ક્રમ: {response.sequence}</Text>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.label}>સ્કોર</Text>
           {scores.map(([type, score]) => (
-            <View key={type} style={styles.row}>
+            <View key={type} style={[styles.row, { backgroundColor: MAST_TYPE_THEME[type].softHex }]}>
               <Text>{type} - {MAST_LABELS[type].label}</Text>
               <Text>{score}</Text>
             </View>

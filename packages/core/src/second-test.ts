@@ -63,6 +63,7 @@ export const SECOND_TEST_COUNT = 10;
 export const SECOND_TEST_PASS_THRESHOLD = 6;
 
 export function scoreSecondTest(answers: boolean[]): { yesCount: number; isValid: boolean } {
+  if (answers.length !== SECOND_TEST_COUNT) throw new Error(`Exactly ${SECOND_TEST_COUNT} second-test answers are required.`);
   const yesCount = answers.filter(Boolean).length;
   return { yesCount, isValid: yesCount >= SECOND_TEST_PASS_THRESHOLD };
 }
