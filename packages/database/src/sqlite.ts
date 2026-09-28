@@ -30,6 +30,7 @@ export type ZoneWithCenters = {
 export type TestResponseRecord = MastScore & {
   id: string;
   participantName: string;
+  globalId: string | null;
   age: number;
   gender: "Male" | "Female";
   zoneId: string;
@@ -131,6 +132,7 @@ export function isFirebaseConfigured(): boolean {
 type ResponseRow = {
   id: string;
   participant_name: string;
+  global_id: string | null;
   age: number;
   gender: string;
   zone_id: string;
@@ -169,6 +171,7 @@ function rowToRecord(row: ResponseRow, answers: BlockAnswer[], secondAnswers: bo
   return {
     id: row.id,
     participantName: row.participant_name,
+    globalId: row.global_id ?? null,
     age: row.age,
     gender: row.gender as "Male" | "Female",
     zoneId: row.zone_id,
@@ -346,6 +349,7 @@ export async function getCenterById(centerId: string): Promise<CenterRecord | nu
 
 export async function createTestResponse(input: {
   participantName: string;
+  globalId: string | null;
   age: number;
   gender: "Male" | "Female";
   center: CenterRecord;
@@ -359,12 +363,12 @@ export async function createTestResponse(input: {
     {
       sql: `
         INSERT INTO test_responses (
-          id, participant_name, age, gender, zone_id, center_id,
+          id, participant_name, global_id, age, gender, zone_id, center_id,
           score_m, score_a, score_s, score_t,
           primary_type, secondary_type, sequence,
           submitted_at, valid, second_test_yes_count, second_test_primary_type, second_test_is_valid
         ) VALUES (
-          ?, ?, ?, ?, ?, ?,
+          ?, ?, ?, ?, ?, ?, ?,
           ?, ?, ?, ?,
           ?, ?, ?,
           ?, NULL, NULL, NULL, NULL
@@ -373,6 +377,7 @@ export async function createTestResponse(input: {
       args: [
         id,
         input.participantName,
+        input.globalId,
         input.age,
         input.gender,
         input.center.zoneId,
@@ -398,6 +403,7 @@ export async function createTestResponse(input: {
   return {
     id,
     participantName: input.participantName,
+    globalId: input.globalId,
     age: input.age,
     gender: input.gender,
     zoneId: input.center.zoneId,

@@ -1,4 +1,4 @@
-import { MAST_LABELS, MAST_TYPE_THEME, type MastType } from "@mast/core";
+import { getServiceById, getServiceMatchStatus, MAST_LABELS, MAST_TYPE_THEME, NO_SERVICE_ID, serviceDisplayLabel, serviceMatchLabel, type MastType } from "@mast/core";
 
 type ReportResponse = {
   participantName: string;
@@ -24,13 +24,7 @@ export function csvEscape(value: unknown): string {
 }
 
 export function responseToCsvRow(response: ReportResponse): string[] {
-  const answers = Array.isArray(response.answers)
-    ? (response.answers as Array<{ blockNumber: number; most: string; least: string }>)
-    : [];
-  const answerCells = Array.from({ length: 10 }, (_, index) => {
-    const answer = answers.find((item) => item.blockNumber === index + 1);
-    return [answer?.most ?? "", answer?.least ?? ""];
-  }).flat();
+  const serviceCells = [0, 1, 2].flatMap((index) => serviceCsvFields(response, response.servicePriorities?.[index]));
 
   return [
     response.submittedAt.toISOString(),
@@ -47,10 +41,7 @@ export function responseToCsvRow(response: ReportResponse): string[] {
     response.secondaryType,
     response.sequence,
     response.valid ?? "",
-    response.servicePriorities?.[0] ?? "",
-    response.servicePriorities?.[1] ?? "",
-    response.servicePriorities?.[2] ?? "",
-    ...answerCells
+    ...serviceCells
   ].map(String);
 }
 
@@ -71,10 +62,24 @@ export function csvHeaders(): string[] {
     "Sequence",
     "Valid",
     "Current service 1",
+    "Service 1 match",
     "Current service 2",
+    "Service 2 match",
     "Current service 3",
-    ...Array.from({ length: 10 }, (_, index) => [`Block ${index + 1} most`, `Block ${index + 1} least`]).flat()
+    "Service 3 match"
   ];
+}
+
+function serviceCsvFields(response: ReportResponse, serviceId?: string): [string, string] {
+  if (!serviceId) return ["", ""];
+  if (serviceId === NO_SERVICE_ID) return ["હાલ કોઈ સેવા નથી", "—"];
+  const service = getServiceById(serviceId);
+  const status = getServiceMatchStatus({
+    serviceId,
+    primaryType: response.primaryType as MastType,
+    valid: response.valid as "Valid" | "Invalid" | null
+  });
+  return [service ? serviceDisplayLabel(service) : serviceId, serviceMatchLabel(status)];
 }
 
 export function makeCsv(responses: ReportResponse[]): string {

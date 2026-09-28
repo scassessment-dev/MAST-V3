@@ -54,28 +54,28 @@ export const MAST_TYPE_THEME: Record<MastType, MastTypeTheme> = {
  */
 export const MAST_STATUS_THEME = {
   valid: {
-    badge: "bg-teal-100 text-teal-800",
-    card: "border-teal-200 bg-teal-50",
-    icon: "bg-teal-100 text-teal-700",
-    text: "text-teal-800",
-    action: "bg-teal-700 text-white hover:bg-teal-800"
+    badge: "bg-cyan-200 text-cyan-950 ring-1 ring-cyan-300",
+    card: "border-cyan-300 bg-cyan-50",
+    icon: "bg-cyan-100 text-cyan-700",
+    text: "text-cyan-800",
+    action: "bg-cyan-700 text-white hover:bg-cyan-800"
   },
   invalid: {
-    badge: "bg-violet-100 text-violet-800",
-    card: "border-violet-200 bg-violet-50",
-    icon: "bg-violet-100 text-violet-700",
-    text: "text-violet-800",
-    action: "bg-violet-700 text-white hover:bg-violet-800"
+    badge: "bg-rose-200 text-rose-950 ring-1 ring-rose-300",
+    card: "border-rose-300 bg-rose-50",
+    icon: "bg-rose-100 text-rose-700",
+    text: "text-rose-800",
+    action: "bg-rose-700 text-white hover:bg-rose-800"
   },
   matched: {
-    badge: "bg-sky-100 text-sky-800",
-    card: "border-sky-300 bg-sky-50",
-    selected: "border-sky-300 bg-sky-50 text-sky-900 ring-2 ring-sky-200"
+    badge: "bg-cyan-200 text-cyan-950 ring-1 ring-cyan-300",
+    card: "border-cyan-300 bg-cyan-50",
+    selected: "border-cyan-300 bg-cyan-50 text-cyan-950 ring-2 ring-cyan-200"
   },
   notMatched: {
-    badge: "bg-slate-200 text-slate-700",
-    card: "border-slate-300 bg-slate-50",
-    selected: "border-slate-300 bg-slate-100 text-slate-800 ring-2 ring-slate-200"
+    badge: "bg-rose-200 text-rose-950 ring-1 ring-rose-300",
+    card: "border-rose-300 bg-rose-50",
+    selected: "border-rose-300 bg-rose-50 text-rose-950 ring-2 ring-rose-200"
   },
   pending: {
     badge: "bg-slate-100 text-slate-500",

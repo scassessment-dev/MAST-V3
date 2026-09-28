@@ -44,7 +44,7 @@ export default async function AdminDashboard() {
       <section className="mx-auto max-w-7xl space-y-5">
 
         {/* Header */}
-        <div className="panel rounded-3xl p-5 sm:p-7">
+        <div className="panel relative z-50 overflow-visible rounded-3xl p-5 sm:p-7">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">

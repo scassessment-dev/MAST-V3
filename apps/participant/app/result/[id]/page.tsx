@@ -20,6 +20,7 @@ export default async function ResultPage({ params }: { params: { id: string } })
         <p className="mt-2 break-words text-slate-600">
           {response.center.zone.name} / {response.center.name} / ઉંમર {response.age}
         </p>
+        {response.globalId ? <p className="mt-2 break-words text-sm font-bold text-slate-600">Global ID: {response.globalId}</p> : null}
 
         {/* Primary Type */}
         <div className={`mt-6 min-w-0 rounded-xl border p-6 ${MAST_TYPE_THEME[primary].card}`}>

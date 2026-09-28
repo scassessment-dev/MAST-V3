@@ -12,15 +12,15 @@ const guideLinks = [
   { href: "/guide/T", label: "T — તર્કબદ્ધ", accent: "bg-indigo-500" },
   { href: "/guide/vivek", label: "જરૂરી વિવેક", accent: "bg-slate-500" }
 ];
-
 export default function AdminNavigation() {
   const pathname = usePathname();
   const [guideOpen, setGuideOpen] = useState(false);
   const dashboardActive = pathname === "/";
   const guideActive = pathname.startsWith("/guide");
+  const takeTestActive = pathname === "/take-test";
 
   return (
-    <nav aria-label="Main navigation" className="flex items-center gap-1 rounded-2xl border border-slate-200/80 bg-white/75 p-1.5 shadow-sm backdrop-blur">
+    <nav aria-label="Main navigation" className="relative z-50 flex items-center gap-1 rounded-2xl border border-slate-200/80 bg-white/75 p-1.5 shadow-sm backdrop-blur">
       <Link
         href="/"
         className={`rounded-xl px-4 py-2.5 text-sm font-black transition ${dashboardActive ? "bg-slate-900 text-white shadow-sm" : "text-slate-700 hover:bg-slate-100"}`}
@@ -28,11 +28,14 @@ export default function AdminNavigation() {
         Dashboard
       </Link>
 
-      <div
-        className="relative"
-        onMouseEnter={() => setGuideOpen(true)}
-        onMouseLeave={() => setGuideOpen(false)}
+      <Link
+        href="/take-test"
+        className={`rounded-xl px-4 py-2.5 text-sm font-black transition ${takeTestActive ? "bg-slate-900 text-white shadow-sm" : "text-slate-700 hover:bg-slate-100"}`}
       >
+        Take Test
+      </Link>
+
+      <div className="relative">
         <button
           type="button"
           aria-expanded={guideOpen}

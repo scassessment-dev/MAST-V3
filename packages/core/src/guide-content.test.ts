@@ -28,9 +28,9 @@ describe("guide presentation data", () => {
   });
 
   it("keeps validation and service outcomes out of the MAST type palette", () => {
-    expect(MAST_STATUS_THEME.valid.badge).toContain("teal");
-    expect(MAST_STATUS_THEME.invalid.badge).toContain("violet");
-    expect(MAST_STATUS_THEME.matched.badge).toContain("sky");
-    expect(MAST_STATUS_THEME.notMatched.badge).toContain("slate");
+    expect(MAST_STATUS_THEME.valid.badge).toContain("cyan");
+    expect(MAST_STATUS_THEME.invalid.badge).toContain("rose");
+    expect(MAST_STATUS_THEME.matched.badge).toContain("cyan");
+    expect(MAST_STATUS_THEME.notMatched.badge).toContain("rose");
   });
 });

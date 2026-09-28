@@ -119,7 +119,7 @@ export default function ResponsesTable({
     : [];
 
   /* ---- Fetch rows from API ---- */
-  const fetchRows = useCallback((f: Filters, requestedPage = 1) => {
+  const fetchRows = useCallback((f: Filters, requestedPage = 1, preserveSelection = false) => {
     startTransition(async () => {
       setLoadError("");
       const params = new URLSearchParams();
@@ -144,7 +144,7 @@ export default function ResponsesTable({
         setRows(data.rows);
         setTotal(data.total);
         setPage(data.page);
-        setSelectedIds(new Set());
+        if (!preserveSelection) setSelectedIds(new Set());
       } catch {
         setRows([]);
         setTotal(0);
@@ -406,16 +406,16 @@ export default function ResponsesTable({
                   title="Select all"
                 />
               </th>
-              <th className="border-b border-slate-200 p-4">Name</th>
-              <th className="border-b border-slate-200 p-4">Age</th>
-              <th className="border-b border-slate-200 p-4">Zone</th>
-              <th className="border-b border-slate-200 p-4">Center</th>
-              <th className="border-b border-slate-200 p-4">Primary</th>
-              <th className="border-b border-slate-200 p-4">Secondary</th>
-              <th className="border-b border-slate-200 p-4">Validity</th>
-              <th className="w-36 whitespace-nowrap border-b border-slate-200 p-4">હાલની સેવા 1</th>
-              <th className="w-36 whitespace-nowrap border-b border-slate-200 p-4">સેવા મેચ</th>
-              <th className="border-b border-slate-200 p-4">Submitted</th>
+              <th className="border-b border-slate-200 p-4">નામ <span className="normal-case">(Name)</span></th>
+              <th className="border-b border-slate-200 p-4">ઉંમર <span className="normal-case">(Age)</span></th>
+              <th className="border-b border-slate-200 p-4">ઝોન <span className="normal-case">(Zone)</span></th>
+              <th className="border-b border-slate-200 p-4">સેન્ટર <span className="normal-case">(Center)</span></th>
+              <th className="border-b border-slate-200 p-4">મુખ્ય પ્રકૃતિ<br /><span className="normal-case">(Primary)</span></th>
+              <th className="border-b border-slate-200 p-4">સહ પ્રકૃતિ<br /><span className="normal-case">(Secondary)</span></th>
+              <th className="border-b border-slate-200 p-4">રિઝલ્ટની યોગ્યતા<br /><span className="normal-case">(Validity)</span></th>
+              <th className="w-28 border-b border-slate-200 p-3">હાલની સેવા 1 <span className="normal-case">(Current Service 1)</span></th>
+              <th className="w-36 whitespace-nowrap border-b border-slate-200 p-4">સેવા મેચ <span className="normal-case">(Service Match)</span></th>
+              <th className="border-b border-slate-200 p-4">સબમિટ તારીખ <span className="normal-case">(Submitted)</span></th>
             </tr>
           </thead>
           <tbody>
@@ -425,6 +425,7 @@ export default function ResponsesTable({
                 <tr
                   key={row.id}
                   onClick={() => router.push(`/responses/${row.id}`)}
+                  onMouseEnter={() => router.prefetch(`/responses/${row.id}`)}
                   className={`cursor-pointer border-b border-slate-100 transition-colors last:border-0 ${
                     checked ? "bg-red-50/70" : "hover:bg-slate-50"
                   }`}
@@ -462,7 +463,7 @@ export default function ResponsesTable({
                       {row.valid ?? "Pending"}
                     </span>
                   </td>
-                  <td className="w-36 p-3"><ServiceNameCell serviceId={row.servicePriorities[0]} /></td>
+                  <td className="w-28 p-3"><ServiceNameCell serviceId={row.servicePriorities[0]} /></td>
                   <td className="w-36 p-3"><ServiceMatchCell serviceId={row.servicePriorities[0]} primaryType={row.primaryType as MastType} valid={row.valid as "Valid" | "Invalid" | null} /></td>
                   <td className="p-3 text-slate-500">
                     {new Date(row.submittedAt).toLocaleDateString("en-IN")}
@@ -489,9 +490,9 @@ export default function ResponsesTable({
 
       {!loadError && total > 0 && (
         <div className="mt-4 flex items-center justify-between rounded-xl bg-white/70 px-4 py-3 ring-1 ring-slate-200">
-          <button onClick={() => fetchRows(filters, page - 1)} disabled={isPending || page <= 1} className="rounded-lg border border-slate-200 px-4 py-2 font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">← Previous</button>
+          <button onClick={() => fetchRows(filters, page - 1, true)} disabled={isPending || page <= 1} className="rounded-lg border border-slate-200 px-4 py-2 font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">← Previous</button>
           <p className="text-sm font-semibold text-slate-600">Page {page} of {Math.max(1, Math.ceil(total / pageSize))}</p>
-          <button onClick={() => fetchRows(filters, page + 1)} disabled={isPending || page >= Math.ceil(total / pageSize)} className="rounded-lg border border-slate-200 px-4 py-2 font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">Next →</button>
+          <button onClick={() => fetchRows(filters, page + 1, true)} disabled={isPending || page >= Math.ceil(total / pageSize)} className="rounded-lg border border-slate-200 px-4 py-2 font-bold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40">Next →</button>
         </div>
       )}
 
@@ -568,7 +569,7 @@ function ServiceNameCell({ serviceId }: { serviceId?: string }) {
   if (!serviceId) return <span className="text-xs font-semibold text-slate-400">માહિતી ઉપલબ્ધ નથી</span>;
   if (serviceId === NO_SERVICE_ID) return <span className="inline-flex whitespace-nowrap rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-bold text-slate-500">સેવા નથી</span>;
   const service = getServiceById(serviceId);
-  return <span className="inline-flex max-w-full rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-black text-slate-700">{service?.shortCode ?? "માહિતી ઉપલબ્ધ નથી"}</span>;
+  return <span className="inline-flex max-w-full break-words rounded-lg bg-sky-100 px-2 py-1.5 text-xs font-black leading-4 text-sky-900 ring-1 ring-sky-200">{service?.shortCode ?? "માહિતી ઉપલબ્ધ નથી"}</span>;
 }
 
 function ServiceMatchCell({ serviceId, primaryType, valid }: { serviceId?: string; primaryType: MastType; valid: "Valid" | "Invalid" | null }) {

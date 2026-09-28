@@ -21,7 +21,7 @@ export const MAST_GUIDES: Record<MastType, MastGuide> = {
     "type": "M",
     "title": "મિલનસાર પ્રકૃતિ",
     "subtitle": "એક નજરમાં",
-    "quote": "લોકો સાથે જોડાવું • ઉત્સાહ જગાવવો • નવા વિચારો આપવા • સરળતાથી વાતચીત કરવી • હકારાત્મક વાતાવરણ ઊભું કરવું",
+    "quote": "પહેલાં વ્યક્તિ સાથે જોડાણ, પછી બીજી વાત.",
     "keywords": [
       "લોકો સાથે જોડાવું",
       "ઉત્સાહ જગાવવો",
@@ -122,7 +122,7 @@ export const MAST_GUIDES: Record<MastType, MastGuide> = {
       },
       {
         "id": "guidance",
-        "title": "વિશેષ માર્ગદર્શન",
+        "title": "કાર્ય માર્ગદર્શન",
         "paragraphs": []
       },
       {
@@ -189,7 +189,7 @@ export const MAST_GUIDES: Record<MastType, MastGuide> = {
     "type": "A",
     "title": "આદેશક પ્રકૃતિ",
     "subtitle": "એક નજરમાં",
-    "quote": "ઝડપથી નિર્ણય લેવો • પરિણામ તરફ આગળ વધવું • જવાબદારી સ્વીકારવી • પડકારનો સામનો કરવો • કામને ગતિ આપવી",
+    "quote": "હવે આગળ શું કરવાનું છે?",
     "keywords": [
       "ઝડપથી નિર્ણય લેવો",
       "પરિણામ તરફ આગળ વધવું",
@@ -290,7 +290,7 @@ export const MAST_GUIDES: Record<MastType, MastGuide> = {
       },
       {
         "id": "guidance",
-        "title": "વિશેષ માર્ગદર્શન",
+        "title": "કાર્ય માર્ગદર્શન",
         "paragraphs": []
       },
       {
@@ -359,7 +359,7 @@ export const MAST_GUIDES: Record<MastType, MastGuide> = {
     "type": "S",
     "title": "સહયોગી પ્રકૃતિ",
     "subtitle": "એક નજરમાં",
-    "quote": "શાંતિથી સાંભળવું • સતત સહકાર આપવો • સંબંધ જાળવવો • સ્થિરતા પસંદ કરવી • ધીરજથી સાથે ચાલવું",
+    "quote": "કોઈ પાછળ ન રહી જાય.",
     "keywords": [
       "શાંતિથી સાંભળવું",
       "સતત સહકાર આપવો",
@@ -460,7 +460,7 @@ export const MAST_GUIDES: Record<MastType, MastGuide> = {
       },
       {
         "id": "guidance",
-        "title": "વિશેષ માર્ગદર્શન",
+        "title": "કાર્ય માર્ગદર્શન",
         "paragraphs": []
       },
       {
@@ -530,7 +530,7 @@ export const MAST_GUIDES: Record<MastType, MastGuide> = {
     "type": "T",
     "title": "તર્કબદ્ધ પ્રકૃતિ",
     "subtitle": "એક નજરમાં",
-    "quote": "ચોકસાઈ રાખવી • કારણ અને આધાર શોધવો • ડિટેલ્સ તપાસવી • વ્યવસ્થિત રીતે કામ કરવું • નિર્ણય પહેલાં પૂરતું વિચારવું",
+    "quote": "આ કામ યોગ્ય રીતે થાય તેની ખાતરી કરીએ.",
     "keywords": [
       "ચોકસાઈ રાખવી",
       "કારણ અને આધાર શોધવો",
@@ -631,7 +631,7 @@ export const MAST_GUIDES: Record<MastType, MastGuide> = {
       },
       {
         "id": "guidance",
-        "title": "વિશેષ માર્ગદર્શન",
+        "title": "કાર્ય માર્ગદર્શન",
         "paragraphs": []
       },
       {

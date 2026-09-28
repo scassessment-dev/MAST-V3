@@ -8,6 +8,7 @@ export const dynamic = "force-dynamic";
 const optionSchema = z.enum(["A", "B", "C", "D"]);
 const submitSchema = z.object({
   participantName: z.string().trim().min(2).max(100),
+  globalId: z.string().trim().max(100).optional(),
   age: z.number().int().min(8).max(120),
   gender: z.enum(["Male", "Female"]),
   centerId: z.string().min(1),
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
     const score = scoreAnswers(body.answers);
     const response = await createTestResponse({
       participantName: body.participantName,
+      globalId: body.globalId || null,
       age: body.age,
       gender: body.gender,
       center,

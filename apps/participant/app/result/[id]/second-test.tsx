@@ -97,7 +97,7 @@ export default function SecondTest({
   if (stage === "instruction") {
     return (
       <section className="mt-8 rounded-2xl border border-blue-100 bg-white/80 p-6 sm:p-8">
-        <p className="text-sm font-bold uppercase tracking-[0.18em] text-gold">Second Test</p>
+        <p className="text-sm font-bold uppercase tracking-[0.18em] text-gold">Review Test</p>
         <h2 className="mt-2 text-2xl font-black text-ink">
           Your Primary Type: <span className={MAST_TYPE_THEME[primaryType].text}>{typeLabel}</span>
         </h2>
@@ -176,7 +176,7 @@ export default function SecondTest({
         </p>
         <Link
           href="/"
-          className={`mt-6 inline-block rounded-xl px-8 py-4 text-xl font-bold shadow-lg shadow-violet-200 transition ${MAST_STATUS_THEME.invalid.action}`}
+          className={`mt-6 inline-block rounded-xl px-8 py-4 text-xl font-bold shadow-lg shadow-rose-200 transition ${MAST_STATUS_THEME.invalid.action}`}
         >
           નવી ટેસ્ટ આપો
         </Link>
@@ -241,7 +241,7 @@ export default function SecondTest({
   return (
     <section className="mt-8 rounded-2xl border border-blue-100 bg-white/80 p-6 sm:p-8">
       <div className="flex items-center justify-between">
-        <p className="text-sm font-bold uppercase tracking-[0.18em] text-gold">Second Test</p>
+        <p className="text-sm font-bold uppercase tracking-[0.18em] text-gold">Review Test</p>
         <span className="rounded-lg bg-blue-50 px-4 py-2 text-base font-black text-blue-700">
           {progress} / {SECOND_TEST_COUNT}
         </span>

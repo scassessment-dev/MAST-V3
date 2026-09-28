@@ -18,6 +18,7 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
   const router = useRouter();
   const [centers, setCenters] = useState<CenterGroup[]>([]);
   const [participantName, setParticipantName] = useState("");
+  const [globalId, setGlobalId] = useState("");
   const [age, setAge] = useState("");
   const [gender, setGender] = useState<"" | "Male" | "Female">("");
   const [centerId, setCenterId] = useState("");
@@ -77,6 +78,7 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           participantName,
+          globalId: globalId.trim() || undefined,
           age: Number(age),
           gender,
           centerId,
@@ -108,7 +110,7 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
             </div>
             <p className="text-sm font-semibold text-blue-100">Step 1 / 2</p>
           </div>
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
             <label className="space-y-2">
               <span className="text-base font-bold text-blue-50">Name / નામ</span>
               <input
@@ -116,6 +118,16 @@ export default function TestForm({ blocks }: { blocks: TestBlock[] }) {
                 onChange={(event) => setParticipantName(event.target.value)}
                 className="h-14 w-full rounded-xl border border-white/15 bg-white px-4 text-lg font-semibold text-ink outline-none ring-amber-200 focus:ring-4"
                 placeholder="તમારું નામ"
+              />
+            </label>
+            <label className="space-y-2">
+              <span className="text-sm font-bold text-blue-50">Global ID / ગ્લોબલ આઈડી (Optional)</span>
+              <input
+                value={globalId}
+                onChange={(event) => setGlobalId(event.target.value)}
+                maxLength={100}
+                className="h-14 w-full rounded-xl border border-white/15 bg-white px-4 text-lg font-semibold text-ink outline-none ring-amber-200 focus:ring-4"
+                placeholder="તમારો ગ્લોબલ આઈડી"
               />
             </label>
             <label className="space-y-2">
