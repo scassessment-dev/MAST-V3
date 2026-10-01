@@ -81,7 +81,7 @@ function ReportDocument({ response }: { response: PdfReportResponse }) {
         <Text style={styles.muted}>ઉંમર: {response.age}</Text>
         <Text style={styles.muted}>ઝોન: {response.center.zone.name}</Text>
         <Text style={styles.muted}>સેન્ટર: {response.center.name}</Text>
-        <Text style={styles.muted}>તારીખ: {response.submittedAt.toLocaleString("en-IN")}</Text>
+        <Text style={styles.muted}>તારીખ: {response.submittedAt.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</Text>
 
         <View style={styles.section}>
           <Text style={styles.label}>પરિણામ સારાંશ</Text>

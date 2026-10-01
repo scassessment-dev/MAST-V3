@@ -129,10 +129,9 @@ export default function ResponsesTable({
       if (f.primaryType) params.set("primaryType", f.primaryType);
       if (f.gender) params.set("gender", f.gender);
       if (f.valid) params.set("valid", f.valid);
-      if (f.from) params.set("from", new Date(f.from).toISOString());
+      if (f.from) params.set("from", new Date(`${f.from}T00:00:00+05:30`).toISOString());
       if (f.to) {
-        const toDate = new Date(f.to);
-        toDate.setHours(23, 59, 59, 999);
+        const toDate = new Date(`${f.to}T23:59:59.999+05:30`);
         params.set("to", toDate.toISOString());
       }
       params.set("pageSize", String(pageSize));
@@ -349,10 +348,9 @@ export default function ResponsesTable({
               if (filters.primaryType) params.set("primaryType", filters.primaryType);
               if (filters.gender) params.set("gender", filters.gender);
               if (filters.valid) params.set("valid", filters.valid);
-              if (filters.from) params.set("from", new Date(filters.from).toISOString());
+              if (filters.from) params.set("from", new Date(`${filters.from}T00:00:00+05:30`).toISOString());
               if (filters.to) {
-                const toDate = new Date(filters.to);
-                toDate.setHours(23, 59, 59, 999);
+                const toDate = new Date(`${filters.to}T23:59:59.999+05:30`);
                 params.set("to", toDate.toISOString());
               }
               const query = params.toString();
@@ -466,7 +464,7 @@ export default function ResponsesTable({
                   <td className="w-28 p-3"><ServiceNameCell serviceId={row.servicePriorities[0]} /></td>
                   <td className="w-36 p-3"><ServiceMatchCell serviceId={row.servicePriorities[0]} primaryType={row.primaryType as MastType} valid={row.valid as "Valid" | "Invalid" | null} /></td>
                   <td className="p-3 text-slate-500">
-                    {new Date(row.submittedAt).toLocaleDateString("en-IN")}
+                    {new Date(row.submittedAt).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" })}
                   </td>
                 </tr>
               );

@@ -1,7 +1,17 @@
 node_modules
 .next
 .env
+.env.*
+!.env.example
+!.env.production.example
+!.env.mariadb.local.example
 .env.local
+.env.mariadb.local
+.env.deploy
+deploy-env.txt
+*.zip
+*.sql
+*.sql.gz
 dist
 coverage
 *.tsbuildinfo
@@ -9,3 +19,4 @@ output
 tmp
 Stuff
 data/*.sqlite
+data/mariadb-local/

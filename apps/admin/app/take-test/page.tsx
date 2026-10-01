@@ -1,7 +1,19 @@
 import AdminNavigation from "../admin-navigation";
 import { requireAdmin } from "../auth";
 
-const participantSiteUrl = process.env.NEXT_PUBLIC_PARTICIPANT_URL ?? "http://localhost:3000";
+export const dynamic = "force-dynamic";
+
+function getParticipantSiteUrl(): string {
+  const value = process.env.PARTICIPANT_URL ?? process.env.NEXT_PUBLIC_PARTICIPANT_URL;
+  if (!value && process.env.NODE_ENV === "production") {
+    throw new Error("PARTICIPANT_URL must be configured for the admin application.");
+  }
+  const url = new URL(value ?? "http://localhost:3000");
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error("PARTICIPANT_URL must be an HTTP or HTTPS URL.");
+  }
+  return url.toString();
+}
 
 const instructions = [
   "આ કોઈ પાસ–ફેલ ટેસ્ટ નથી અને તેના આધારે કોઈની યોગ્યતા કે અયોગ્યતા નક્કી થતી નથી.",
@@ -15,6 +27,7 @@ const instructions = [
 
 export default async function TakeTestPage() {
   await requireAdmin();
+  const participantSiteUrl = getParticipantSiteUrl();
 
   return (
     <main className="min-h-screen px-4 py-5 sm:px-6 lg:px-8">

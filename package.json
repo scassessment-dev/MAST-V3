@@ -2,6 +2,8 @@
   "name": "mast-test-webapp",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.10.0",
+  "engines": { "node": ">=22.13.0" },
   "scripts": {
     "dev": "pnpm --parallel --filter @mast/participant --filter @mast/admin dev",
     "dev:participant": "pnpm --filter @mast/participant dev",
@@ -10,7 +12,11 @@
     "lint": "pnpm --recursive lint",
     "test": "pnpm --filter @mast/core test",
     "admin:messages": "python scripts/generate_admin_messages.py",
-    "db:seed": "tsx scripts/init_sqlite.ts"
+    "db:init": "tsx --env-file-if-exists=.env.local scripts/init_mariadb.ts",
+    "db:migrate:sqlite": "tsx --env-file-if-exists=.env.local scripts/migrate_sqlite_to_mariadb.ts",
+    "db:check": "tsc --project tsconfig.scripts.json",
+    "test:integration": "tsx --env-file-if-exists=.env.local scripts/verify_local_mariadb.ts",
+    "db:seed": "pnpm db:init"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",

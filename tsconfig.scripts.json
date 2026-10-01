@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "noEmit": true
+  },
+  "include": [
+    "scripts/init_mariadb.ts",
+    "scripts/migrate_sqlite_to_mariadb.ts",
+    "scripts/verify_local_mariadb.ts"
+  ]
+}

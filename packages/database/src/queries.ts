@@ -1,7 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { existsSync, mkdirSync } from "node:fs";
-import { join, resolve } from "node:path";
-import { createClient, type Client } from "@libsql/client";
+import type { Pool, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import {
   CENTER_SEEDS,
   scoreSecondTest,
@@ -10,6 +8,7 @@ import {
   type MastType
 } from "@mast/core";
 import type { AdminRole, AdminSession } from "./auth";
+import { getMariaDbPool } from "./mariadb";
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -70,20 +69,46 @@ export type ResponseFilters = {
 
 // ─── DB singleton ─────────────────────────────────────────────────────────────
 
-let _db: Client | null = null;
+type SqlValue = string | number | boolean | null | Date;
+type SqlStatement = { sql: string; args?: SqlValue[] };
+type QueryResult = { rows: unknown[]; rowsAffected: number };
 
-function getDbUrl(): string {
-  const envPath = process.env.DATABASE_PATH;
-  const filePath = envPath ? resolve(envPath) : resolve(join(process.cwd(), "..", "..", "data", "mast.sqlite"));
-  if (!existsSync(filePath)) {
-    mkdirSync(resolve(filePath, ".."), { recursive: true });
+class MariaDbQueryClient {
+  constructor(private readonly pool: Pool) {}
+
+  async execute(statement: string | SqlStatement): Promise<QueryResult> {
+    const sql = typeof statement === "string" ? statement : statement.sql;
+    const args = typeof statement === "string" ? [] : statement.args ?? [];
+    const [result] = await this.pool.execute(sql, args);
+
+    if (Array.isArray(result)) {
+      return { rows: result as RowDataPacket[], rowsAffected: 0 };
+    }
+    return { rows: [], rowsAffected: (result as ResultSetHeader).affectedRows ?? 0 };
   }
-  return `file:${filePath}`;
+
+  async batch(statements: SqlStatement[], _mode?: "write"): Promise<void> {
+    const connection = await this.pool.getConnection();
+    try {
+      await connection.beginTransaction();
+      for (const statement of statements) {
+        await connection.execute(statement.sql, statement.args ?? []);
+      }
+      await connection.commit();
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  }
 }
 
-function db(): Client {
+let _db: MariaDbQueryClient | null = null;
+
+function db(): MariaDbQueryClient {
   if (_db) return _db;
-  _db = createClient({ url: getDbUrl() });
+  _db = new MariaDbQueryClient(getMariaDbPool());
   return _db;
 }
 
@@ -608,8 +633,10 @@ export async function updateResponseValidation(
 
   const scored = scoreSecondTest(data.secondTestAnswers);
   const valid = scored.isValid ? "Valid" : "Invalid";
-  const update = await db().execute({
-    sql: `
+  const connection = await getMariaDbPool().getConnection();
+  try {
+    await connection.beginTransaction();
+    const [update] = await connection.execute<ResultSetHeader>(`
       UPDATE test_responses
       SET valid = ?,
           second_test_yes_count = ?,
@@ -619,8 +646,7 @@ export async function updateResponseValidation(
           service_priority_2 = ?,
           service_priority_3 = ?
       WHERE id = ? AND valid IS NULL
-    `,
-    args: [
+    `, [
       valid,
       scored.yesCount,
       scored.isValid ? 1 : 0,
@@ -628,18 +654,23 @@ export async function updateResponseValidation(
       data.servicePriorities[1] ?? null,
       data.servicePriorities[2] ?? null,
       id
-    ]
-  });
-
-  if (update.rowsAffected === 0) return getTestResponseById(id);
-
-  await db().batch([
-    { sql: "DELETE FROM test_response_second_answers WHERE test_response_id = ?", args: [id] },
-    ...data.secondTestAnswers.map((value, index) => ({
-      sql: "INSERT INTO test_response_second_answers (test_response_id, question_index, answer_value) VALUES (?, ?, ?)",
-      args: [id, index, value ? 1 : 0]
-    }))
-  ], "write");
+    ]);
+    if (update.affectedRows > 0) {
+      await connection.execute("DELETE FROM test_response_second_answers WHERE test_response_id = ?", [id]);
+      for (const [index, value] of data.secondTestAnswers.entries()) {
+        await connection.execute(
+          "INSERT INTO test_response_second_answers (test_response_id, question_index, answer_value) VALUES (?, ?, ?)",
+          [id, index, value ? 1 : 0]
+        );
+      }
+    }
+    await connection.commit();
+  } catch (error) {
+    await connection.rollback();
+    throw error;
+  } finally {
+    connection.release();
+  }
 
   return getTestResponseById(id);
 }

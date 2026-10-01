@@ -1,9 +1,10 @@
+import { fileURLToPath } from "node:url";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@mast/core", "@mast/database"],
-  experimental: {
-    serverComponentsExternalPackages: ["better-sqlite3"]
-  }
+  output: "standalone",
+  experimental: { outputFileTracingRoot: fileURLToPath(new URL("../../", import.meta.url)) },
+  transpilePackages: ["@mast/core", "@mast/database"]
 };
 
 export default nextConfig;

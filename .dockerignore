@@ -1,0 +1,25 @@
+.git
+.next
+**/node_modules
+**/.next
+.env
+.env.*
+**/.env
+**/.env.*
+data
+output
+tmp
+Stuff
+MAST Test V2
+Extra Resourse
+Images
+*.sqlite
+**/*.sqlite
+*.zip
+**/*.zip
+*.sql
+*.sql.gz
+**/*.sql
+**/*.sql.gz
+deploy-env.txt
+prisma

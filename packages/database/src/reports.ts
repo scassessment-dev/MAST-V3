@@ -119,7 +119,7 @@ export function htmlReport(response: ReportResponse): string {
     <p><strong>ઉંમર:</strong> ${response.age}</p>
     <p><strong>ઝોન:</strong> ${response.center.zone.name}</p>
     <p><strong>સેન્ટર:</strong> ${response.center.name}</p>
-    <p><strong>તારીખ:</strong> ${response.submittedAt.toLocaleString("en-IN")}</p>
+    <p><strong>તારીખ:</strong> ${response.submittedAt.toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</p>
     <p><span class="pill" style="background:${MAST_TYPE_THEME[response.primaryType as MastType].softHex};color:${MAST_TYPE_THEME[response.primaryType as MastType].accentHex}">Primary: ${response.primaryType}</span><span class="pill" style="background:${MAST_TYPE_THEME[response.secondaryType as MastType].softHex};color:${MAST_TYPE_THEME[response.secondaryType as MastType].accentHex}">Secondary: ${response.secondaryType}</span><span class="pill">Sequence: ${response.sequence}</span></p>
     <table><thead><tr><th>Type</th><th>Score</th></tr></thead><tbody>${scoreRows}</tbody></table>
   </div>
